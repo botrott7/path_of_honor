@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/static/css/choice.css">
+{% endblock %}
+
+{% block content %}
+    <p>{{ choice_text }}</p>
+    <form method="post">
+        {% for index, choice in choices %}
+            <label>
+                <input type="radio" name="choice" value="{{ choice }}">
+                {{ choice }}
+            </label><br>
+        {% endfor %}
+        <input type="submit" value="Продолжить" class="submit">
+    </form>
+{% endblock %}
