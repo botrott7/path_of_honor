@@ -3,6 +3,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Response, Request, status
 from enum import Enum
 from pydantic import BaseModel
+from app.routes.character_state import get_character_state
+from app.database import SessionLocal
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -21,13 +24,13 @@ class ChoiceInput(BaseModel):
 
 
 forests_urls = {
-    PersonChoices.run: "/adventures/choice",
+    PersonChoices.run: "/adventures/first_choice",
     PersonChoices.fight: "/adventures/fight",
     PersonChoices.gold: "/adventures/gold",
 }
 
 rivers_urls = {
-    PersonChoices.run: "/adventures/choice",
+    PersonChoices.run: "/adventures/first_choice",
     PersonChoices.fight: "/adventures/fight",
     PersonChoices.gold: "/adventures/gold",
 }
@@ -37,10 +40,14 @@ rivers_urls = {
 async def forest_adventure(request: Request):
     message = "Войдя в лес, вы ощущаете мрачную тишину. Внезапно, перед вами появляется разбойник!"
     choices = [choice.value for choice in PersonChoices]
-
-    return templates.TemplateResponse("choice.html", {
+    session = request.session
+    user_id = session.get("user_id")
+    db: Session = SessionLocal()
+    character_state = get_character_state(user_id=user_id, db=db)
+    return templates.TemplateResponse("adventures_choice.html", {
         "request": request,
         "choice_text": message,
+        "character_state": character_state,
         "choices": enumerate(choices)
     })
 
@@ -63,7 +70,7 @@ async def river_adventure(request: Request):
     message += "\nЕсли вы одолеете воина, то отправитесь с ними беслатно, если проиграете, то отдадите всё свое золото!"
     choices = [choice.value for choice in PersonChoices]
 
-    return templates.TemplateResponse("choice.html", {
+    return templates.TemplateResponse("adventures_choice.html", {
         "request": request,
         "choice_text": message,
         "choices": enumerate(choices)
@@ -84,4 +91,4 @@ async def river_adventure_post(request: Request):
 @router.get("/adventures/city")
 async def city_adventure(request: Request):
     message = 'Вы решили вернуться в город, чтобы отдохнуть и подготовиться к новым приключениям.'
-    return templates.TemplateResponse("city.html", {"request": request, "message": message})
+    return templates.TemplateResponse("adventures_end.html", {"request": request, "message": message})

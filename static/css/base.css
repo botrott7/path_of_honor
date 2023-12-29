@@ -26,3 +26,7 @@ p {
     margin-top: 20px;
     cursor: pointer;
 }
+.error-message {
+    color: red;
+    margin-top: 10px;
+}

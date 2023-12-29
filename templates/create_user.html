@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1>Создание пользователя</h1>
+    <form method="post" action="/create_user">
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Создать</button>
+    </form>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+{% endblock %}

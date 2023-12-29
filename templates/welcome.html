@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+    {% if users %}
+        <h2>Привет, {{ users.name }}</h2>
+        <!-- <a href="/authenticate" class="start-button">Продолжить</a> -->
+    {% else %}
+        <p>{{ message }}</p>
+        <a href="/create_user" class="start-button">Создать персонажа</a>
+        <a href="/login" class="start-button">Войти</a>
+    {% endif %}
+
+{% endblock %}

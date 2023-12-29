@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ message }}</h1>
+    {% if user %}
+        <h2>Вы вошли как пользователь</h2>
+        <h4>Привет, {{ user.name }}</h4>
+        <a href="/adventures/start" class="start-button">Продолжить</a>
+    {% endif %}
+{% endblock %}

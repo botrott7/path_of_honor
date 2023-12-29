@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Игра окончена</h1>
+{% if request.url.path == "/adventures/city" %}
+    <p>{{ message }}</p>
+{% else %}
+    <p>{{ message }}</p>
+    <h3>Состояние персонажа:</h3>
+        <h2>Помер</h2>
+{% endif %}
+    <a href="/" class="start-button">Начать сначала</a>
+{% endblock %}
