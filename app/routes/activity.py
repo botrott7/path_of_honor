@@ -20,7 +20,7 @@ async def fight_adventure(request: Request, response: Response):
     character_state = get_character_state(user_id=user_id, db=db)
     try:
         if player_attack_info and enemy_attack_info:
-            return templates.TemplateResponse("index.html",
+            return templates.TemplateResponse("adventures_fight.html",
                                               {"request": request,
                                                "message": message,
                                                "player_attack_info": player_attack_info,

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.security import HTTPBasic
 from fastapi.responses import RedirectResponse
-from app.routes import adventures, activity, encounters, kinght
+from app.routes import adventures, activity, encounters, kinght, caravan
 from fastapi.templating import Jinja2Templates
 from app.models import User
 from app.database import SessionLocal
@@ -21,6 +21,7 @@ app.include_router(adventures.router)
 app.include_router(encounters.router)
 app.include_router(activity.router)
 app.include_router(kinght.router)
+app.include_router(caravan.router)
 
 secret_key = os.urandom(100 // 8)
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
