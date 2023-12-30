@@ -1,14 +1,9 @@
-from fastapi import FastAPI, Request, Response, status, Depends
+from fastapi import FastAPI, Request, Response, status
 from fastapi import APIRouter
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from enum import Enum
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from sqlalchemy.orm import Session
-
-from app.database import SessionLocal
 from app.routes.character_state import get_character_state
 from starlette.responses import RedirectResponse
 
@@ -34,8 +29,9 @@ caravan_urls = {
 async def gold_adventure(request: Request):
     session = request.session
     user_id = session.get("user_id")
-    db: Session = SessionLocal()
-    character_state = get_character_state(user_id=user_id, db=db)
+
+    character_state = get_character_state(user_id=user_id)
+
     message = ("На пути вы встречаете караван торговцев. Они готовятся к дальнему путешествию через пустыню."
                "Торговцы предлагают присоединиться к ним, но у вас должен быть начальный капитал")
     choices = [choice.value for choice in CaravanChoices]

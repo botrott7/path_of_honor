@@ -43,8 +43,9 @@ async def handle_choice(request: Request):
 async def handle_reset(request: Request):
     session = request.session
     user_id = session.get("user_id")
-    db: Session = SessionLocal()
-    reset_character_state(user_id, db)
+
+    reset_character_state(user_id)
+
     start_adventure_url = "/adventures/start"
     return Response(status_code=status.HTTP_303_SEE_OTHER, headers={'Location': start_adventure_url})
 
@@ -53,10 +54,11 @@ async def handle_reset(request: Request):
 async def handle_choice(request: Request):
     session = request.session
     user_id = session.get("user_id")
-    db: Session = SessionLocal()
+
     try:
         if user_id:
-            character_state = get_character_state(user_id=user_id, db=db)
+            character_state = get_character_state(user_id=user_id)
+
             choice_text = "Перед вами две дороги снова. Куда желаете теперь направиться?"
             choices = [choice.value for choice in AdventureChoices]
 
@@ -70,7 +72,7 @@ async def handle_choice(request: Request):
             message = "Вы не вошли как пользователь с ID "
             return templates.TemplateResponse("welcome.html", {"request": request, "message": message, })
     finally:
-        db.close()
+        pass
 
 
 @router.post('/adventures/first_choice')

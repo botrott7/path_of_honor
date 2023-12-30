@@ -4,8 +4,6 @@ from fastapi import Response, Request
 from app.routes.combat import combat_function
 from starlette.responses import RedirectResponse
 from app.routes.character_state import get_character_state
-from app.database import SessionLocal
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -15,9 +13,11 @@ templates = Jinja2Templates(directory="templates")
 async def fight_adventure(request: Request, response: Response):
     session = request.session
     user_id = session.get("user_id")
-    db: Session = SessionLocal()
-    message, player_attack_info, enemy_attack_info = combat_function(enemy_strength=60, user_id=user_id, db=db)
-    character_state = get_character_state(user_id=user_id, db=db)
+
+    message, player_attack_info, enemy_attack_info = await combat_function(enemy_strength=60, user_id=user_id)
+
+    character_state = get_character_state(user_id=user_id)
+
     try:
         if player_attack_info and enemy_attack_info:
             return templates.TemplateResponse("adventures_fight.html",
@@ -32,7 +32,7 @@ async def fight_adventure(request: Request, response: Response):
             response.status_code = 400
             return "Ошибка"
     finally:
-        db.close()
+        pass
 
 
 @router.get("/adventures/end")

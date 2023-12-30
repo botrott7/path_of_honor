@@ -1,13 +1,19 @@
 import random
+
+from app.database import SessionLocal
 from app.models import User
 
 from typing import Optional
 
 
-def combat_function(enemy_strength: int, user_id: int, db, fatigue: Optional[bool] = False,
+async def combat_function(enemy_strength: int, user_id: int, fatigue: Optional[bool] = False,
                     hangover: Optional[bool] = False, dysmoral: Optional[bool] = False):
     """Боевка игры, учитывает силу противника и необязательные параметры состояния"""
+    db = SessionLocal()
     user = db.query(User).filter(User.id == user_id).first()
+
+    print('COMBAT_FUNC', user) # ЭТОТ КОД НАДО ПРОРАБОТАТЬ
+
     if not user:
         raise ValueError("Пользователь не найден")
 
@@ -44,3 +50,4 @@ def combat_function(enemy_strength: int, user_id: int, db, fatigue: Optional[boo
     else:
         player_attack_info.append("Вы проиграли. Ваше приключение окончено.")
         return "Поражение! Ваше приключение окончено.", player_attack_info, enemy_attack_info
+

@@ -4,8 +4,6 @@ from fastapi import Response, Request, status
 from enum import Enum
 from pydantic import BaseModel
 from app.routes.character_state import get_character_state
-from app.database import SessionLocal
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -42,8 +40,9 @@ async def forest_adventure(request: Request):
     choices = [choice.value for choice in PersonChoices]
     session = request.session
     user_id = session.get("user_id")
-    db: Session = SessionLocal()
-    character_state = get_character_state(user_id=user_id, db=db)
+
+    character_state = get_character_state(user_id=user_id)
+
     return templates.TemplateResponse("adventures_choice.html", {
         "request": request,
         "choice_text": message,
@@ -56,6 +55,7 @@ async def forest_adventure(request: Request):
 async def forest_adventure_post(request: Request):
     form_data = await request.form()
     choice = form_data.get('choice')
+
     if choice in forests_urls:
         forest_urls = rivers_urls[choice]
         return Response(status_code=status.HTTP_303_SEE_OTHER, headers={'Location': forest_urls})
