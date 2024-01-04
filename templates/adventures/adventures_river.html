@@ -1,11 +1,6 @@
 {% extends "base.html" %}
-{% block styles %}
-    <link rel="stylesheet" href="/static/css/choice.css">
-{% endblock %}
-
 {% block content %}
     <p>{{ message }}</p>
-
     <p>{{ choice_text }}</p>
     <form method="post">
         {% for index, choice in choices %}
@@ -16,5 +11,4 @@
         {% endfor %}
         <input type="submit" value="Продолжить" class="start-button">
     </form>
-
 {% endblock %}

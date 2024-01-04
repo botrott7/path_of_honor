@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Path of Honor</h1>
+    <div class="container">
+        <h2>{{ message }}</h2>
+        {% include "character_state.html" %}
+        {% if request.url.path == "/adventures/fight" %}
+        <!-- <h3>Результаты атак:</h3>
+        {% for attack in playerattackinfo %}
+            <p>{{ attack }}</p>
+        {% endfor %}
+        {% for attack in enemyattackinfo %}
+            <p>{{ attack }}</p>
+        {% endfor %}
+        -->
+            <a href="{{ continue_url }}" class="start-button">Продолжить</a>
+        {% elif request.url.path == "/" %}
+            <a href="/adventures/choice" class="start-button">Начать игру</a>
+        {% elif request.url.path == "/adventures/end" %}
+            <a href="/adventures/choice" class="start-button">Начать сначала</a>
+        {% endif %}
+    </div>
+{% endblock %}

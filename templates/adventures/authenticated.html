@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Path of Honor</h1>
+    <div class="container">
+        <h1>{{ message }}</h1>
+        {% if user %}
+            <h2>Вы вошли как пользователь</h2>
+            <p>Добро пожаловать, {{ user.name }} !</p>
+            <a href="/adventures/start" class="start-button">Продолжить</a>
+        {% endif %}
+    </div>
+{% endblock %}

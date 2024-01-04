@@ -2,18 +2,56 @@ body {
     font-family: Arial, sans-serif;
     margin: 20px;
 }
-
-h1 {
-    color: #333;
-    font-size: 20px;
+.error-message {
+    color: red;
+    margin-top: 10px;
 }
-
-p {
-    color: #666;
-    font-size: 16px;
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+h1 {
+    text-align: center;
+}
+.buttons {
+    margin-top: 20px;
+}
+form {
+    margin-top: 20px;
+}
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
     margin-bottom: 10px;
 }
-
+input[type="submit"] {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+.message {
+    margin-top: 10px;
+}
 .start-button {
     background-color: #4CAF50;
     border: none;
@@ -26,7 +64,28 @@ p {
     margin-top: 20px;
     cursor: pointer;
 }
-.error-message {
-    color: red;
-    margin-top: 10px;
+.column-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-right: 50px;
+}
+.column-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.character-state ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+.character-state li {
+    margin-bottom: 10px;
+}
+.submit {
+    margin-top: 20px;
 }

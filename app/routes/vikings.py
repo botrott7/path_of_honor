@@ -1,114 +1,128 @@
-import random
-def river_adventure():
-    """Ветка РЕКА, путь по выбору река, ветка викингов"""
-    print("Подойдя к реке, вы обнаруживаете группу викингов, которые усердно готовят свои драккары к отплытию")
-    print("Викинги вас заметили и предложили отправиться с ними, предлагая вам сделку")
-    print("Если вы одолеете воина, то отправитесь с ними беслатно, если проиграете, то отдадите всё свое золото!")
-    choice = make_choice("Будете сражаться или попытаетесь сбежать?",
-                         ["Сражаться", "Сбежать", "Предложить золото"])
-    global character_state
+from http.client import HTTPException
+from starlette.responses import RedirectResponse
+from fastapi import APIRouter
+from fastapi.templating import Jinja2Templates
+from fastapi import Response, Request, status
+from enum import Enum
+from pydantic import BaseModel
 
-    if choice == 1:
-        print("Вы смело бросаетесь в бой...")
-        if combat(enemy_strength=60):
-            print("Победа! Вы одолели викинга и нашли небольшое количество золота.")
-            character_state['gold'] += 5
-            river_rest_or_move()
-        else:
-            return
+from app.routes.combat import combat_function
+from app.routes.character_state import get_character_state, update_character_state
+from logi.logs import logger
 
-    elif choice == 2:
-        print("Вы быстро убегаете и вас не настигает никакой враг.")
-
-    else:
-        character_state['gold'] -= 5
-        print("Вы отдаете викингам всё свое золото, они с пренебрежением пускают вас на корабль!")
-        river_rest_or_move()
-    continue_adventure()  # Возвращаем игрока к выбору пути.
+router = APIRouter()
+templates = Jinja2Templates(directory="templates")
 
 
-def river_rest_or_move():
-    """Ветка РЕКА, игрок может получить отрицательный эффект 'похмелье'"""
-    global character_state
-    print("Викинги на корабле предлагают соревнование: кто выпьет больше пива!")
-    choice = make_choice("Желаете принять участие?",
-                         ["Принять", "Отказаться"])
+class RiverChoices(str, Enum):
+    beer = "Учавствовать"
+    observe = "Наблюдать"
 
-    if choice == 1:
-        print("Вы решаете принять участие в празднике пива!")
-        success = random.choice([True, False])
 
-        if success:
-            print("К неожиданности всех, вы оказываетесь несгибаемым пивным воином!"
-                  " Поражая своим талантом, вы удостаиваетесь главного приза.")
-            character_state["gold"] += 10
+class KinghtChoices(str, Enum):
+    war = "Присоединиться к армии"
+    refuse = "Отказаться"
+
+
+class KinghtInput(BaseModel):
+    choice: RiverChoices
+    intro_text: str
+    choice_text: str
+
+
+kinghts_urls = {
+    RiverChoices.beer: "/adventures/vik_camp",
+    KinghtChoices.war: "/adventures/vik_war",
+    KinghtChoices.refuse: "/adventures/caravan"
+}
+
+
+@router.get("/adventures/vikings")
+async def vikings_adventure(request: Request):
+    try:
+        session = request.session
+        user_id = session.get("user_id")
+        character_state = get_character_state(user_id=user_id)
+        message = "Викинги на корабле предлагают соревнование: кто выпьет больше пива!"
+        choices = [choice.value for choice in RiverChoices]
+        return templates.TemplateResponse("adventures/adventures_kinght.html", {
+            "request": request,
+            "choice_text": message,
+            "choices": enumerate(choices),
+            "character_state": character_state
+        })
+    except Exception as e:
+        logger.error('Ошибка ветка про викингов', str(e))
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
+
+
+@router.post('/adventures/vikings')
+async def vikings_adventure_post(request: Request):
+    session = request.session
+    user_id = session.get("user_id")
+    character_state = get_character_state(user_id=user_id)
+    form_data = await request.form()
+    choice = form_data.get('choice')
+    try:
+        if choice == RiverChoices.observe:
+            character_state["health"] = min(character_state["health"] + 20, character_state["max_hp"])
+            update_character_state(user_id, character_state)
+            return RedirectResponse(kinghts_urls[RiverChoices.beer], status_code=status.HTTP_303_SEE_OTHER)
+        elif choice == RiverChoices.beer:
             character_state['hangover'] = True
+            update_character_state(user_id, character_state)
+            return RedirectResponse(kinghts_urls[RiverChoices.beer], status_code=status.HTTP_303_SEE_OTHER)
         else:
-            if character_state["gold"] >= 0:
-                print("Увы, это сражение оказалось не по вашим силам."
-                      " Вам пришлось раскошелиться, чтобы оплатить счет за участие.")
-                print(" Также вы чувствуете себя довольно нехорошо...")
-                character_state["gold"] -= 5
-                character_state['hangover'] = True
-            else:
-                end_game("У вас не хватает золота, чтобы оплатить участие!"
-                         " Разгневанные викинги швыряют вас за борт!")
-
-    else:
-        print("Предпочитая остаться вне сражения, вы наслаждаетесь зрелищем,"
-              " встречаете новых друзей и выигрываете пару мелких дружеских пари на исход сражений."
-              " В это время ваш дух праздника и ваш кошелек только укрепляются.")
-    army_vikings()
+            return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error('Ошибка в POST-запросе ветка про викингов', str(e))
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
 
 
-def army_vikings():
-    """Ветка РЕКА, битва героя на стороне викикингов"""
-    global character_state
-    print("Во главе корабля стоит величественный викинг и задаёт вам вопрос:")
-    print("Готовы ли вы присоединиться к их стороне в предстоящей битве.")
-    choice = make_choice("Принимаете ли вы предложение викингов?",
-                         ["Принять", "Отказаться"])
+@router.get('/adventures/vik_camp')
+async def vik_camp_adventure_get(request: Request):
+    try:
+        session = request.session
+        user_id = session.get("user_id")
+        character_state = get_character_state(user_id=user_id)
+        message = ("Во главе корабля стоит величественный викинг и задаёт вам вопрос:"
+                   "Готовы ли вы присоединиться к их стороне в предстоящей битве?")
+        choices = [choice.value for choice in KinghtChoices]
+        return templates.TemplateResponse("adventures/adventures_kinght.html", {
+            "request": request,
+            "choice_text": message,
+            "choices": enumerate(choices),
+            "character_state": character_state
+        })
+    except Exception as e:
+        logger.error('Ошибка ветка vik_camp', str(e))
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
 
-    if choice == 1 or (choice == 2 and character_state["gold"] < 5):
-        if choice == 2:
-            print("У вас не хватает золота на уплату,"
-                  "поэтому викинги принудительно отправляют вас воевать на своей стороне.")
-            character_state["dysmoral"] = True
 
-        if character_state["gold"] >= 5:
-            print("Перед битвой вам предложили эликсир, который поможет вам в сражении. Стоимость эликсира: 5 золотых.")
-            buy_potion = make_choice("Купите ли вы эликсир?", ["Купить", "Не покупать"])
-            if buy_potion == 1:
-                print("Вы приобретаете эликсир!")
-                character_state["gold"] -= 5
-                character_state["health"] = 100
-            else:
-                print("Вы решаете не тратить деньги на эликсир.")
+@router.post('/adventures/vik_camp')
+async def vik_camp_adventure_post(request: Request):
+    try:
+        form_data = await request.form()
+        choice = form_data.get('choice')
+        if choice == KinghtChoices.war:
+            return RedirectResponse(kinghts_urls[KinghtChoices.war], status_code=status.HTTP_303_SEE_OTHER)
+        elif choice == KinghtChoices.refuse:
+            return RedirectResponse(kinghts_urls[KinghtChoices.refuse], status_code=status.HTTP_303_SEE_OTHER)
         else:
-            print("У вас недостаточно золота для покупки эликсира.")
-
-        print("Вы соглашаетесь сражаться вместе с викингами.")
-        if character_state["hangover"]:
-            print("Однако ваше состояние после пира оставляет желать лучшего.")
-            successful_combat = combat(enemy_strength=100)
-        else:
-            if character_state["dysmoral"]:
-                successful_combat = combat(enemy_strength=200)
-            else:
-                successful_combat = combat(enemy_strength=70)
-
-        # Если игрок выиграл сражение
-        if successful_combat:
-            print("Против всех ожиданий вы зарекомендовали себя в бою и принесли победу викингам!")
-            character_state['gold'] += 100
-            end_game("Вы получаете золото и становитесь викингом!")
-
-        else:
-            # Если игрок проиграл сражение, игра окончена
-            end_game("К несчастью, сегодня не ваш день. Вы пали в бою...", good_ending=False)
+            return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error('Ошибка в POST-запросе ветка vik_camp', str(e))
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
 
 
-    else:
-        print("Вы отказываетесь присоединяться к битве и уплачиваете 5 золотых монет.")
-        character_state["gold"] -= 5
-        caravan_encounter()
+@router.get('/adventures/vik_war')
+async def vik_war_adventure(request: Request, response: Response):
+    try:
+        session = request.session
+        user_id = session.get("user_id")
+        await combat_function(enemy_strength=60, user_id=user_id)
+        logger.debug('WAR, combat_function', combat_function)
+        return RedirectResponse("/adventures/end", status_code=307)
+    except Exception as e:
+        logger.error('Ошибка в vik_war', str(e))
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")

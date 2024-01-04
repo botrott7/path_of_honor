@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Вход пользователя</h1>
-    <form method="POST" action="/authenticate" enctype="application/x-www-form-urlencoded">
-      <input type="text" name="name">
-      <input type="password" name="password">
-      <input type="submit" value="Submit">
-    </form>
-    {% if request.state.detail %}
-        <div class="error-message">{{ request.state.detail }}</div>
-    {% endif %}
+    <div class="container">
+        <h1>Вход пользователя</h1>
+        <form method="POST" action="/authenticate" enctype="application/x-www-form-urlencoded">
+          <input type="text" name="name" placeholder="Введите имя">
+          <input type="password" name="password" placeholder="Введите пароль">
+          <input type="submit" value="Подтвердить">
+        </form>
+        {% if request.state.detail %}
+            <div class="error-message">{{ request.state.detail }}</div>
+        {% endif %}
+    </div>
 {% endblock %}

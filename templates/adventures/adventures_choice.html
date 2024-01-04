@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Path of Honor</h1>
+    <div class="container">
+        <div class="column-left">
+            {% include "character_state.html" %}
+        </div>
+        <div class="column-center">
+            <p>{{ choice_text }}</p>
+            <form method="post">
+                {% for index, choice in choices %}
+                <label>
+                    <input type="radio" name="choice" value="{{ choice }}">
+                    {{ choice }}
+                </label><br>
+                {% endfor %}
+                <input type="submit" value="Продолжить" class="submit">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Path of Honor</h1>
+<div class="container">
+    <p>{{ message }}</p>
+    {% include "character_state.html" %}
+    <a href="{{ continue_url }}" class="start-button">Продолжить</a>
+</div>
+{% endblock %}

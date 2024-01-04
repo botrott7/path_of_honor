@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Path of Honor</h1>
+    <div class="container">
+        <p>{{ message }}</p>
+        <div class="buttons">
+            <a href="/logout" class="start-button">Выйти</a>
+            <a href="/adventures/first_choice" class="start-button">Начать игру</a>
+            <a href="/reset" class="start-button">Сброс</a>
+        </div>
+    </div>
+{% endblock %}

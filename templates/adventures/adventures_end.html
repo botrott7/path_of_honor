@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 style="text-align:center;">Конец приключения</h1>
+    <div class="container">
+        {% if character_state.health > 0 and character_state.gold > 0 %}
+            <p>Поздравляем! У вас осталось достаточно здоровья и золота.</p>
+            <p>Вы успешно закончили приключение.</p>
+        {% elif character_state.health > 0 %}
+            <p>Приключение окончено.</p>
+            <p>У вас осталось немного золота, но вы все равно смогли выжить.</p>
+        {% else %}
+            <p>К сожалению, вы проиграли приключение.</p>
+            <p>Попытайтесь еще раз!</p>
+        {% endif %}
+        <a href="/adventures/start" class="start-button">Начать сначала</a>
+    </div>
+{% endblock %}
